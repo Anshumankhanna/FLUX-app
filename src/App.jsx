@@ -11,14 +11,16 @@ import CashLiquidity from "./Pages/CashLiquidity";
 import InventoryWorkingCapital from "./Pages/InventoryWorkingCapital";
 import DebtFinancing from "./Pages/DebtFinancing";
 import FinancialRatios from "./Pages/FinancialRatios";
-import StressTest from "./Pages/StressTest";
 import CashFlowForecast from "./Pages/CashFlowForecast";
-import RiskAlerts from "./Pages/RiskAlerts";
-import AIExplanation from "./Pages/AIExplanation";
 import EquityFXMarket from "./Pages/EquityFXMarket";
 import Login from "./Pages/Login";
 import SignUp from "./Pages/SignUp";
 import UserProfilePage from "./Pages/UserProfilePage";
+
+/* Analytics pages — not in sidebar nav but accessible via direct links */
+import StressTest from "./Pages/StressTest";
+// import RiskAlerts from "./Pages/RiskAlerts"; // merged into Executive Dashboard
+import AIExplanation from "./Pages/AIExplanation";
 
 /* ─── User context ─── */
 export const UserContext = createContext(null);
@@ -68,6 +70,109 @@ function FluxLogo({ size = 36, showText = true }) {
 }
 
 
+/* ─── Ticker mock data ─── */
+const TICKERS = [
+  { exchange: "NSE", company: "RELIANCE" },
+  { exchange: "BSE", company: "RELIANCE" },
+  { exchange: "NSE", company: "TCS" },
+  { exchange: "BSE", company: "TCS" },
+  { exchange: "NSE", company: "INFOSYS" },
+  { exchange: "NSE", company: "HDFCBANK" },
+  { exchange: "BSE", company: "HDFCBANK" },
+  { exchange: "NSE", company: "ICICIBANK" },
+  { exchange: "NSE", company: "HINDUNILVR" },
+  { exchange: "NSE", company: "SBIN" },
+  { exchange: "NSE", company: "BHARTIARTL" },
+  { exchange: "NSE", company: "ITC" },
+  { exchange: "BSE", company: "ITC" },
+  { exchange: "NSE", company: "KOTAKBANK" },
+  { exchange: "NSE", company: "LT" },
+  { exchange: "NSE", company: "AXISBANK" },
+  { exchange: "NSE", company: "WIPRO" },
+  { exchange: "NSE", company: "MARUTI" },
+  { exchange: "NSE", company: "TATAMOTORS" },
+  { exchange: "NSE", company: "SUNPHARMA" },
+];
+
+
+/* ─── Ticker Search Component ─── */
+function TickerSearch() {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState("NSE:RELIANCE");
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handler(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const filtered = TICKERS.filter(t => {
+    const label = `${t.exchange}:${t.company}`;
+    return label.toLowerCase().includes(query.toLowerCase());
+  });
+
+  return (
+    <div className="relative" ref={ref} id="ticker-search">
+      <div
+        className="flex items-center gap-[8px] bg-bg-card border border-border-primary rounded-lg px-[14px] py-[8px] cursor-pointer transition-normal hover:border-accent-purple-light focus-within:border-accent-purple-light focus-within:shadow-[0_0_0_3px_rgba(26,58,138,0.12)]"
+        style={{ minWidth: 220 }}
+        onClick={() => setOpen(true)}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-dim shrink-0">
+          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          id="ticker-search-input"
+          type="text"
+          value={open ? query : selected}
+          placeholder="Search ticker…"
+          onChange={e => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => { setOpen(true); setQuery(""); }}
+          className="bg-transparent border-none outline-none text-[13px] font-medium text-text-primary w-full font-heading tracking-[0.5px] placeholder:text-text-dim"
+        />
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-dim shrink-0" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </div>
+
+      {open && (
+        <div className="absolute top-[calc(100%+6px)] left-0 w-full min-w-[260px] bg-bg-card border border-border-primary rounded-lg shadow-[0_16px_48px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)] z-[200] animate-[fadeIn_0.12s_ease-out] overflow-hidden" style={{ backdropFilter: 'blur(16px)' }}>
+          <div className="max-h-[280px] overflow-y-auto py-[4px]">
+            {filtered.length === 0 && (
+              <div className="px-[16px] py-[14px] text-[12px] text-text-dim text-center">No tickers found</div>
+            )}
+            {filtered.map((t, i) => {
+              const label = `${t.exchange}:${t.company}`;
+              const isSelected = label === selected;
+              return (
+                <button
+                  key={`${label}-${i}`}
+                  id={`ticker-option-${i}`}
+                  className={`w-full text-left px-[16px] py-[10px] text-[13px] font-medium cursor-pointer border-none transition-fast flex items-center gap-[10px] ${
+                    isSelected
+                      ? 'bg-accent-purple-bg text-accent-purple-light'
+                      : 'bg-transparent text-text-secondary hover:bg-bg-card-hover hover:text-text-primary'
+                  }`}
+                  onClick={() => { setSelected(label); setQuery(""); setOpen(false); }}
+                >
+                  <span className="text-[10px] font-bold tracking-[0.8px] px-[6px] py-[2px] rounded bg-[rgba(13,148,136,0.1)] text-[#0d9488] shrink-0">{t.exchange}</span>
+                  <span className="font-heading tracking-[0.3px]">{t.company}</span>
+                  {isSelected && <span className="ml-auto text-accent-purple-light">✓</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 /* ─── Nav config ─── */
 const navSections = [
   {
@@ -94,15 +199,7 @@ const navSections = [
       { path: "/cash", label: "Cash & Liquidity", icon: "◐" },
       { path: "/inventory", label: "Inventory & WC", icon: "◧" },
       { path: "/debt", label: "Debt & Financing", icon: "◫" },
-    ],
-  },
-  {
-    title: "ANALYTICS",
-    items: [
-      { path: "/stress-test", label: "Stress Testing", icon: "⚡" },
       { path: "/forecast", label: "Cash Flow Forecast", icon: "◮" },
-      { path: "/risks", label: "Risk Alerts", icon: "⚠" },
-      { path: "/ai-insight", label: "AI Insights", icon: "✦" },
     ],
   },
 ];
@@ -119,10 +216,7 @@ const pageTitles = {
   "/cash": "Cash & Liquidity",
   "/inventory": "Inventory & Working Capital",
   "/debt": "Debt & Financing",
-  "/stress-test": "Stress Scenario Engine",
   "/forecast": "Cash Flow Forecast",
-  "/risks": "Risk & Early Warning",
-  "/ai-insight": "AI Financial Insights",
   "/user-profile": "My Profile",
 };
 
@@ -312,6 +406,9 @@ function AppLayout({ onLogout }) {
           </div>
 
           <div className="flex items-center gap-[8px] md:gap-[16px]">
+            <div className="hidden md:block">
+              <TickerSearch />
+            </div>
             <div className="flex flex-col items-end gap-[2px]">
               <span className="text-[13px] font-semibold text-text-primary tracking-[0.2px]">{user.name}</span>
               <span className="text-[10px] text-text-dim tracking-[0.4px]">{user.role}</span>
@@ -335,9 +432,8 @@ function AppLayout({ onLogout }) {
             <Route path="/cash" element={<CashLiquidity />} />
             <Route path="/inventory" element={<InventoryWorkingCapital />} />
             <Route path="/debt" element={<DebtFinancing />} />
-            <Route path="/stress-test" element={<StressTest />} />
             <Route path="/forecast" element={<CashFlowForecast />} />
-            <Route path="/risks" element={<RiskAlerts />} />
+            <Route path="/stress-test" element={<StressTest />} />
             <Route path="/ai-insight" element={<AIExplanation />} />
             <Route path="/user-profile" element={<UserProfilePage onLogout={onLogout} />} />
             {/* Legacy aliases */}

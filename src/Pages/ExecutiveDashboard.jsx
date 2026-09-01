@@ -96,7 +96,7 @@ function ExecutiveDashboard() {
             <span className="text-[20px] shrink-0">⚠️</span>
             <p className="text-[11px] text-text-muted leading-[1.5]">Liquidity falls below threshold in <strong className="text-negative">27 days</strong> under recession scenario</p>
           </div>
-          <Link to="/stress-test" className="flux-btn text-white text-[11px] px-[14px] py-[7px] inline-block">Run Stress Test →</Link>
+          <span className="flux-btn text-white text-[11px] px-[14px] py-[7px] inline-block opacity-60 cursor-default">Stress Test</span>
         </div>
 
 
@@ -130,48 +130,69 @@ function ExecutiveDashboard() {
         </div>
       </div>
 
-
-      {/* RECENT ALERTS */}
-      <div className="mb-[24px] animate-[fadeIn_0.5s_ease_both] delay-400 flux-card">
-        <div className="flex justify-between items-center mb-[18px]">
+      {/* FULL RISK ALERTS — merged from Risk Alerts page */}
+      <div className="mb-[24px] animate-[fadeIn_0.5s_ease_both] delay-400">
+        <div className="page-heading" style={{ marginBottom: 0 }}>
           <div>
-            <span className="card-label">RISK ALERTS</span>
-            <h3 className="card-title">Recent Alerts</h3>
+            <p className="small-label">INTELLIGENCE</p>
+            <h2 style={{ fontSize: 18 }}>Risk &amp; Early Warning</h2>
+            <p className="sub-text">Automated anomaly detection and alerts</p>
           </div>
-          <Link to="/risks" className="flux-btn text-white">View All →</Link>
         </div>
-        <div className="flex flex-col gap-[2px]">
-          {alerts.slice(0, 4).map((alert) => (
-            <div key={alert.id} className="flex items-center gap-[14px] p-[14px_16px] rounded-sm transition-fast hover:bg-bg-card-hover">
-              <span className="text-[20px] shrink-0">{alert.icon}</span>
-              <div className="flex-1">
-                <strong className="text-[13px] block mb-[3px]">{alert.type}</strong>
-                <p className="text-[11px] text-text-dim">{alert.message}</p>
-              </div>
-              <span className={`status-badge ${alert.severity}`}>{alert.severity}</span>
+
+        <div className="ra-grid">
+          <div className="flux-card ra-main">
+            <span className="card-label">SYSTEM ALERTS</span>
+            <h3 className="card-title">Recent Notifications</h3>
+
+            <div className="ra-list">
+              {(alerts || []).map(a => (
+                <div key={a.id} className={`ra-item border-${a.severity}`}>
+                  <div className="ra-item-header">
+                    <strong>{a.type}</strong>
+                    <span className={`status-badge ${a.severity}`}>{a.severity}</span>
+                  </div>
+                  <p>{a.message}</p>
+                  <small>{a.date || "Recent"}</small>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <div className="ra-sidebar">
+            <div className="flux-card">
+              <span className="card-label">RISK SUMMARY</span>
+              <div className="ra-summary-item">
+                <span>Critical</span>
+                <strong className="negative">{(alerts || []).filter(a => a.severity === "critical").length}</strong>
+              </div>
+              <div className="ra-summary-item">
+                <span>Warning</span>
+                <strong className="warning">{(alerts || []).filter(a => a.severity === "warning").length}</strong>
+              </div>
+              <div className="ra-summary-item">
+                <span>Watch</span>
+                <strong className="watch">{(alerts || []).filter(a => a.severity === "watch").length}</strong>
+              </div>
+              <div className="ra-summary-item">
+                <span>Healthy</span>
+                <strong className="positive">{(alerts || []).filter(a => a.severity === "healthy").length}</strong>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
 
       {/* QUICK LINKS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-[14px] animate-[fadeIn_0.5s_ease_both] delay-500">
-        <Link to="/financials" className="flex items-center gap-[12px] p-[18px_20px] cursor-pointer text-[13px] font-medium flux-card hover:border-accent-purple-light hover:bg-accent-purple-bg hover:text-accent-purple-light hover:-translate-y-[2px]">
-          <span className="text-[18px] w-[36px] h-[36px] flex items-center justify-center bg-accent-purple-bg rounded-sm text-accent-purple-light">▤</span>
-          <span>Financial Statements</span>
-        </Link>
-        <Link to="/cash" className="flex items-center gap-[12px] p-[18px_20px] cursor-pointer text-[13px] font-medium flux-card hover:border-accent-purple-light hover:bg-accent-purple-bg hover:text-accent-purple-light hover:-translate-y-[2px]">
-          <span className="text-[18px] w-[36px] h-[36px] flex items-center justify-center bg-accent-purple-bg rounded-sm text-accent-purple-light">◐</span>
-          <span>Cash & Liquidity</span>
-        </Link>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] animate-[fadeIn_0.5s_ease_both] delay-500">
         <Link to="/stress-test" className="flex items-center gap-[12px] p-[18px_20px] cursor-pointer text-[13px] font-medium flux-card hover:border-accent-purple-light hover:bg-accent-purple-bg hover:text-accent-purple-light hover:-translate-y-[2px]">
           <span className="text-[18px] w-[36px] h-[36px] flex items-center justify-center bg-accent-purple-bg rounded-sm text-accent-purple-light">⚡</span>
-          <span>Stress Testing</span>
+          <span>Stress Test</span>
         </Link>
         <Link to="/ai-insight" className="flex items-center gap-[12px] p-[18px_20px] cursor-pointer text-[13px] font-medium flux-card hover:border-accent-purple-light hover:bg-accent-purple-bg hover:text-accent-purple-light hover:-translate-y-[2px]">
           <span className="text-[18px] w-[36px] h-[36px] flex items-center justify-center bg-accent-purple-bg rounded-sm text-accent-purple-light">✦</span>
-          <span>AI Insights</span>
+          <span>AI Recommendation</span>
         </Link>
       </div>
 
